@@ -1,9 +1,18 @@
 function [TraceGradData,FusionData] = Is_Slow_Fusion(TraceGradData,FusionData,...
         DockingData,DetectionOption,Options)
-    
+
+% We use the difference trace test to identify slow fusion events, which 
+% appear to occur over many frames, rather than as a sharp event. Because 
+% the difference trace will also identify fast events, we have to do a 
+% cross comparison to make sure that we don't identify a fast event as 
+% a slow event. There are two different methods of analyzing the difference 
+% trace test data - Usual and Cluster Analysis. Right now the Cluster 
+% Analysis is more reliable (Bob, December 2016).
+
+% Pre-define some variables
 FilteredDiffTraceNeg = TraceGradData.FilteredDiffTraceNeg;
 FilteredDiffTracePos = TraceGradData.FilteredDiffTracePos;
-RangeToFilterDifference = TraceGradData.RangeToFilterDifference;
+RangeToFilterDifference = Options.NumberFramesBackToSubtract;
 TraceRunMedian = TraceGradData.TraceRunMedian;
 
 if strcmp(DetectionOption,'Usual Trace Analysis')
@@ -58,9 +67,9 @@ if strcmp(DetectionOption,'Usual Trace Analysis')
 
 elseif strcmp(DetectionOption,'Cluster Analysis')
     
-    ClusterRange = 10;
-    [TraceGradData.DiffPosClusterData] = Analyze_Gradient_Clusters(FilteredDiffTracePos,ClusterRange);
-    [TraceGradData.DiffNegClusterData] = Analyze_Gradient_Clusters(FilteredDiffTraceNeg,ClusterRange);
+    ClusterRange = Options.NumFramesBetweenDifferentClusters;
+    [TraceGradData.DiffPosClusterData] = Analyze_Trace_Clusters(FilteredDiffTracePos,ClusterRange);
+    [TraceGradData.DiffNegClusterData] = Analyze_Trace_Clusters(FilteredDiffTraceNeg,ClusterRange);
     
     DiffNegClusterData = TraceGradData.DiffNegClusterData;
     DiffPosClusterData = TraceGradData.DiffPosClusterData;
@@ -71,14 +80,17 @@ elseif strcmp(DetectionOption,'Cluster Analysis')
     SlowFuseNegFrameNumbers = TraceRunMedian.FrameNumbers(DiffNegClusterData.ClusterStartIndices);
     ClusterSizesPos = DiffPosClusterData.ClusterSizes;
     ClusterSizesNeg = DiffNegClusterData.ClusterSizes;
-    ClusterSizeCutoff = RangeToFilterDifference + 15;
+    
+    NumberFramesFastFusionCuttoffPos = Options.NumberFramesBackToSubtract + Options.ClusterSizePosConsideredFastFusion;
+    NumberFramesFastFusionCuttoffNeg = Options.NumberFramesBackToSubtract + Options.ClusterSizeNegConsideredFastFusion;
 
     if NumSlowFusionEventsNegDetected == 0 && NumSlowFusionEventsPosDetected == 0
     else
         if NumSlowFusionEventsNegDetected > 0
             if isempty(FusionData.FuseFrameNumbers)
-                if NumSlowFusionEventsNegDetected == 1 && ClusterSizesNeg(1) < 30 &&...
-                        NumSlowFusionEventsPosDetected == 0
+                if NumSlowFusionEventsNegDetected == 1 && ClusterSizesNeg(1) < ...
+                        NumberFramesFastFusionCuttoffNeg && NumSlowFusionEventsPosDetected == 0
+                    
                     if strcmp(Options.TypeofFusionData,'TetheredVesicle')
                         FusionData.Designation = 'Slow';
                     else
@@ -96,7 +108,7 @@ elseif strcmp(DetectionOption,'Cluster Analysis')
                     % as a slow fusion event.
                     DistanceToFastFusionEvents = abs(FusionData.FuseFrameNumbers - SlowFuseNegFrameNumbers(j));
                     EventsCloseBy = DistanceToFastFusionEvents <= RangeToFilterDifference;
-                    NumberBigClusters = sum(ClusterSizesNeg >= ClusterSizeCutoff);
+                    NumberBigClusters = sum(ClusterSizesNeg >= NumberFramesFastFusionCuttoffNeg);
                     if sum(EventsCloseBy) == 0 || NumberBigClusters > 0
                         FusionData.Designation = 'Slow';
                         break
@@ -108,7 +120,7 @@ elseif strcmp(DetectionOption,'Cluster Analysis')
 
         if NumSlowFusionEventsPosDetected > 0
             if isempty(FusionData.FuseFrameNumbers) && isnan(DockingData.StopFrameNum)
-                if NumSlowFusionEventsPosDetected == 1 && ClusterSizesPos(1) < 40 &&...
+                if NumSlowFusionEventsPosDetected == 1 && ClusterSizesPos(1) < NumberFramesFastFusionCuttoffPos &&...
                         NumSlowFusionEventsNegDetected == 0
                     
                     FusionData.Designation = '1 Fuse';
@@ -131,7 +143,7 @@ elseif strcmp(DetectionOption,'Cluster Analysis')
                     
                     DistanceToOtherEvents = abs(OtherEventFrameNumbers - SlowFusePosFrameNumbers(j));
                     EventsCloseBy = DistanceToOtherEvents <= RangeToFilterDifference;
-                    NumberBigClusters = sum(ClusterSizesPos >= ClusterSizeCutoff);
+                    NumberBigClusters = sum(ClusterSizesPos >= NumberFramesFastFusionCuttoffPos);
                     if sum(EventsCloseBy) == 0 || NumberBigClusters > 0
                         FusionData.Designation = 'Slow';
                         break

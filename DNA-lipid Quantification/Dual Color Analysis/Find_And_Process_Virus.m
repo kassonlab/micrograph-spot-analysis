@@ -1,11 +1,7 @@
 function [BindingDataToSave, OtherDataToSave] =...
     Find_And_Process_Virus(StackFilePath,ThresholdInput,StackFilename, ...
     StackNum, DefaultPathname,Options)
-
-%Parameters for Virus Goodness Test
-    Options.MinSUVSize = 4;
-    MaxEccentricity = 0.8; %0 = circle, 1 = line
-    MaxVesSize = 100; %Number of pixels
+   
 
     %The first image in the stack is read and displayed. A 3D array
     %(ImageStackMatrix) is created which will contain the data for all images in
@@ -68,7 +64,7 @@ function [BindingDataToSave, OtherDataToSave] =...
         CurrThresh = ThresholdToFindViruses(b);
 %         BWStackMatrix(:,:,b) =  CurrentFrameImage >(RoughBackground(b) + ThresholdInput);
         BWStackMatrix(:,:,b) = im2bw(CurrentFrameImage, CurrThresh);
-        BWStackMatrix(:,:,b) = bwareaopen(BWStackMatrix(:,:,b), Options.MinSUVSize, 8);
+        BWStackMatrix(:,:,b) = bwareaopen(BWStackMatrix(:,:,b), Options.MinParticleSize, 8);
         
         if rem(b,20)==0
             set(0,'CurrentFigure',FigureHandles.CurrentTraceWindow);
@@ -96,7 +92,9 @@ function [BindingDataToSave, OtherDataToSave] =...
     
     for CurrFrameNum = FrameNumberList
         NumFramesAnalyzed = NumFramesAnalyzed + 1;
-       
+        NumberColocalizedGood = 0;
+        NumberColocalizedTotal = 0;
+        
         if strcmp(Options.DualColor,'y')
             if strcmp(Options.DualColor,'y')
                 CurrentImage2 = ImageStackMatrix(:,:,CurrFrameNum+1);
@@ -164,7 +162,7 @@ function [BindingDataToSave, OtherDataToSave] =...
                 DidFitWork, CroppedVesImageThresholded, SizeOfSquareAroundCurrVesicle,...
                 CurrVesicleEccentricity, NewArea, ReasonVirusFailed] =...
                 Simplified_Test_Goodness(CurrentImage,CurrentVirusProperties,BitDepth,...
-                CurrThresh, Options.MinSUVSize, MaxEccentricity,ImageWidth, ImageHeight,MaxVesSize,BinaryCurrentImage);
+                CurrThresh, Options.MinParticleSize, Options.MaxEccentricity,ImageWidth, ImageHeight,Options.MaxParticleSize,BinaryCurrentImage);
             
             if strcmp(IsVirusGood,'y')
                 LineColor = 'g-';
@@ -204,8 +202,18 @@ function [BindingDataToSave, OtherDataToSave] =...
                         CurrentImage2,CurrentVirusBox,RoughBackground,...
                         FigureHandles,BoxToPlot,LineColor,CurrFrameNum,IsVirusGood);
                     
+                    if GaussianIntensity2 > Options.GaussianColocCutoff
+                            LineColor2 = 'y-';
+                            NumberColocalizedTotal = NumberColocalizedTotal +1;
+                            if strcmp(IsVirusGood,'y')
+                                NumberColocalizedGood = NumberColocalizedGood +1;
+                            end
+                    else
+                            LineColor2 = 'm-';
+                    end
+                    
                     set(0,'CurrentFigure',FigureHandles.ImageWindow);
-                    plot(BoxToPlot(:,2),BoxToPlot(:,1),LineColor)
+                    plot(BoxToPlot(:,2),BoxToPlot(:,1),LineColor2)
                     hold on
                     drawnow
                 end
@@ -235,8 +243,12 @@ function [BindingDataToSave, OtherDataToSave] =...
         BindingDataToSave(NumFramesAnalyzed).NumberPixelsNotBlackedOut = NumberPixelsNotBlackedOut;
         BindingDataToSave(NumFramesAnalyzed).NumberMicronsNotBlackOut = NumberMicronsNotBlackedOut;
         
+        if strcmp(Options.DualColor,'y')
+            BindingDataToSave(NumFramesAnalyzed).NumberColocalizedGood = NumberColocalizedGood;
+            BindingDataToSave(NumFramesAnalyzed).NumberColocalizedTotal = NumberColocalizedTotal;
+        end
     end
-
+    
     OtherDataToSave.ThresholdsUsed = ThresholdToFindViruses;
     OtherDataToSave.RoughBackground = RoughBackground;
     

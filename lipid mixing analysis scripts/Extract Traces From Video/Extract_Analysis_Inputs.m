@@ -13,19 +13,19 @@ FilenameNoComma = strrep(CurrentFilename, ',', ' ');
         Key = 'foc';
         IndexOfKey = strfind(FilenameNoComma, Key);
         if ~isempty(IndexOfKey)
-           Options.FocusFrameNumbers = sscanf(FilenameNoComma(IndexOfKey+length(Key)+1:end), '%i') 
+           Options.FocusFrameNumbers = sscanf(FilenameNoComma(IndexOfKey+length(Key)+1:end), '%i');
         end
 
         Key = 'pH';
         IndexOfKey = strfind(FilenameNoComma, Key);
         if ~isempty(IndexOfKey)
-           Options.PHdropFrameNum = sscanf(FilenameNoComma(IndexOfKey+length(Key)+1:end), '%i')
+           Options.PHdropFrameNum = sscanf(FilenameNoComma(IndexOfKey+length(Key)+1:end), '%i');
         end
 
         Key = 'find';
         IndexOfKey = strfind(FilenameNoComma, Key);
         if ~isempty(IndexOfKey)
-           Options.FrameNumToFindParticles = sscanf(FilenameNoComma(IndexOfKey+length(Key)+1:end), '%i')
+           Options.FrameNumToFindParticles = sscanf(FilenameNoComma(IndexOfKey+length(Key)+1:end), '%i');
         end
 
 end

@@ -26,13 +26,13 @@ function [Options] = Setup_Options()
 
    
     Options.MinImageShow = 90;
-    Options.MaxImageShow = 1000;    
+    Options.MaxImageShow = 600;    
         % These determine the minimum and maximum intensity counts that will 
         % be used to set the contrast for the grayscale images that are displayed.
         % The minimum value will be displayed as black and the maximum value 
         % will be displayed as white.
         
-    Options.IgnoreAreaNearBigParticles = 'n';
+    Options.IgnoreAreaNearBigParticles = 'y';
         % 'y' OR 'n'
         % Choose 'y' if you want to ignore the region around bright particles 
         % because the noise nearby from those particles is being incorrectly 

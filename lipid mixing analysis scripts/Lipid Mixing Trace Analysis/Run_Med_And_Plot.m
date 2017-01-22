@@ -3,15 +3,7 @@ function [TraceRunMedian,FigureHandles] = ...
     
 %Calc the running median, plot running median and where the pH drop
 %occurred
-    if strcmp(Options.TypeofFusionData, 'TetheredVesicle') 
-        RunMedHalfLength = 1; 
-            %Num of points on either side, prev value = 5
-    elseif strcmp(Options.TypeofFusionData, 'SLBSelfQuench') 
-        RunMedHalfLength = 0; 
-            %Num of points on either side, prev value = 5
-    else
-        disp(' Type of fusion data not specified correctly');
-    end        
+    RunMedHalfLength = Options.RunMedHalfLength;
 
         StartIdx = RunMedHalfLength + 1;
         EndIdx = length(CurrTraceCropped.Trace)-RunMedHalfLength;
@@ -37,5 +29,7 @@ function [TraceRunMedian,FigureHandles] = ...
             LineToPlot = ylim;
             XToPlot = [UniversalData.pHDropFrameNumber, UniversalData.pHDropFrameNumber];
         plot(XToPlot,LineToPlot,'m--')
+    xlabel('Frame Number');
+    ylabel('Intensity (AU)');
     hold off
 end

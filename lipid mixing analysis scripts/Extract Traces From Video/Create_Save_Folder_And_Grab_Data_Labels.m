@@ -28,7 +28,7 @@ function [DataFileLabel,SaveDataPathname] = Create_Save_Folder_And_Grab_Data_Lab
             if strcmp(Options.GrabTotalIntensityOnly,'y')
                 SaveFolderName = strcat(DataLabelForSaveFolder,'TotalIntensityOnly','/');
             else 
-                SaveFolderName = strcat(DataLabelForSaveFolder,'Traces-Test','/');
+                SaveFolderName = strcat(DataLabelForSaveFolder,'Traces','/');
             end
     
 % The folder where the output analysis files will be saved is created.

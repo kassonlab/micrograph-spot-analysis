@@ -1,6 +1,5 @@
 function [Options] = Setup_Options()
 
-
     Options.DataFileLabel = 'TestLabel';
         % This is the label for the output .mat file.
 
@@ -22,10 +21,18 @@ function [Options] = Setup_Options()
         % Use 'NaN' to indicate no limit (i.e. all frames will be included).        
         % You would likely only use this option if you wanted to quickly 
         % assess how the program is running without having 
-        % to wait for an entire video to load. Alternatively, you could 
-        % use it to exclude frames at the end of the video from your analysis.
+        % to wait for an entire set of images to load. Alternatively, you could 
+        % use it to exclude frames at the end of the image stack from your analysis.
 
-
+    Options.GaussianColocCutoff = 300;
+        % For a given region in which a particle was found in the first color 
+        % or finding image, this is the number of counts above background in 
+        % the second color (background determined by Gaussian fit) above 
+        % which the program will consider the region to contain a real 
+        % particle in the second color image. This is only for the purposes 
+        % of determining the percentage of co-localized particles, calculated 
+        % in the Find_And_Process_Virus.m script.
+        
     Options.MinImageShow = 90;
     Options.MaxImageShow = 400;    
     Options.MinImage2Show = 90;
@@ -34,6 +41,22 @@ function [Options] = Setup_Options()
         % be used to set the contrast for the grayscale images that are displayed.
         % The minimum value will be displayed as black and the maximum value 
         % will be displayed as white. 2 refers to the second color image.
+
+% ---------Parameters Used To Find Particles/Assess Particle 'Goodness'---------
+    Options.MinParticleSize = 4;
+        % This is the minimum particle size (defined as the number of connected pixels 
+        % above the threshold) in order for a particle to be found. 
+        % Particles smaller than this size will not be found (i.e. the program 
+        % will assume that they are noise).
+    Options.MaxParticleSize = 100; 
+        % This is the maximum particle size (defined as the number of connected pixels 
+        % above the threshold) in order for a particle to be considered "good". 
+        % Particles larger than this size will be designated as "bad".
+    Options.MaxEccentricity = 0.8;
+        % This is the maximum eccentricity that a particle can have in order to still 
+        % be considered "good". 0 = perfect circle, 1 = straight line. If the 
+        % eccentricity is too high, that may indicate that the particle being 
+        % analyzed is actually two diffraction limited particles close together.
         
     Options.IgnoreAreaNearBigParticles = 'n';
         % 'y' OR 'n'
@@ -60,13 +83,13 @@ function [Options] = Setup_Options()
         
     Options.DualColor = 'y';
         % 'y' OR 'n'
-        % Choose ?y' to find the particles in the odd-numbered images and 
+        % Choose 'y' to find the particles in the odd-numbered images and 
         % to also grab the intensity in the corresponding region of interest 
         % in the  even-numbered images (i.e. the second color). This option 
         % should always be left on.
     Options.ReverseFind = 'n';
         % 'y' OR 'n'
-        % Choose ?y' to switch the order of which images are used to 
+        % Choose 'y' to switch the order of which images are used to 
         % find (i.e. the even numbered images will be used to find 
         % the particles instead of the odd-numbered images).
         

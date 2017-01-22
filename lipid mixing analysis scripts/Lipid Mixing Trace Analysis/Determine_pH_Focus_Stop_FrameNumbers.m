@@ -1,17 +1,24 @@
-function [FrameAllVirusStoppedBy,PHdropFrameNum,focusframenumbers,focusproblems] =...
+function [FrameAllVirusStoppedBy,PHdropFrameNum,FocusFrameNumbers,focusproblems] =...
     Determine_pH_Focus_Stop_FrameNumbers(OtherImportedData,InputTraceData,Options)
 
 %Determine ph drop frame num
-    if isfield(InputTraceData(1), 'PHdropFrameNum')
-        if isnan(InputTraceData(1).PHdropFrameNum)
-            PHdropFrameNum = Auto_Find_pH_FrameNumber(OtherImportedData);
+    if isempty(Options.ChangepHNumber)
+    
+        if isfield(InputTraceData(1), 'PHdropFrameNum')
+            if isnan(InputTraceData(1).PHdropFrameNum)
+                PHdropFrameNum = Auto_Find_pH_FrameNumber(OtherImportedData);
+            else
+                PHdropFrameNum = InputTraceData(1).PHdropFrameNum;
+                disp('user def phdrop')
+            end
         else
-            PHdropFrameNum = InputTraceData(1).PHdropFrameNum;
-            disp('user def phdrop')
+            disp('error no phdrop')
+            %PHdropFrameNum = [];
         end
     else
-        disp('error no phdrop')
-        %PHdropFrameNum = [];
+        PHdropFrameNum = Options.ChangepHNumber;
+        disp('user def phdrop, changed')
+        
     end
 
 %Determine frame number all virus particles have stopped moving
@@ -27,20 +34,28 @@ function [FrameAllVirusStoppedBy,PHdropFrameNum,focusframenumbers,focusproblems]
     end
 
 %Determine focus frame nums
-    if isfield(InputTraceData(1), 'focusframenumbers')
-        if isnan(InputTraceData(1).focusframenumbers)
+    if isfield(InputTraceData(1), 'FocusFrameNumbers')
+        if isempty(InputTraceData(1).FocusFrameNumbers)
+            InputTraceData(1).FocusFrameNumbers = NaN;
+        end
+        
+        if isnan(InputTraceData(1).FocusFrameNumbers(1)) && isempty(Options.AdditionalFocusFrameNumbers)
+      
             focusproblems = 'n';
-            focusframenumbers = NaN;
+            FocusFrameNumbers = NaN;
         else
             focusproblems = 'y';
-            focusframenumbers = InputTraceData(1).focusframenumbers;
-%             indextwouse =focusframenumbers  >PHdropFrameNum;
-%             focusframenumbers = [ 124, 126, 127, 128, 129, 130, 232, 404]; %focusframenumbers(indextwouse);
-            disp(strcat('user def focus problems, fr = ',num2str(focusframenumbers)));
+            if isnan(InputTraceData(1).FocusFrameNumbers(1)) && ~isempty(Options.AdditionalFocusFrameNumbers)
+                FocusFrameNumbers = Options.AdditionalFocusFrameNumbers;
+            else 
+                FocusFrameNumbers = InputTraceData(1).FocusFrameNumbers;
+                FocusFrameNumbers = [FocusFrameNumbers' Options.AdditionalFocusFrameNumbers];
+            end
+            disp(strcat('user def focus problems, fr = ',num2str(FocusFrameNumbers)));
         end
     else
         focusproblems = 'n';
-        focusframenumbers = NaN;
+        FocusFrameNumbers = NaN;
     end
 end
 

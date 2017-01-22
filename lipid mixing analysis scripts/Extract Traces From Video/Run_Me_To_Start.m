@@ -69,6 +69,8 @@ for i = 1:NumberOfFiles
         if strcmp(Options.ExtractInputsFromFilename,'y')
             [Options] = Extract_Analysis_Inputs(Options,CurrentFilename);
         end
+    % Print out options to commandline
+        Options     
         
     % Now we call the function to find the virus particles and extract
     % their fluorescence intensity traces
@@ -77,7 +79,7 @@ for i = 1:NumberOfFiles
             i, DefaultPathname,Options);
 
     % Analysis output file is saved to the save folder. All variables are saved.
-    save(strcat(SaveDataPathname,DataFileLabel,'-Traces-Test','.mat'));
+    save(strcat(SaveDataPathname,DataFileLabel,'-Traces','.mat'));
     
     % Results are displayed in the command prompt window
     Results
@@ -85,4 +87,6 @@ end
 
 disp('---------------------')
 disp ('Thank you.  Come again.')
+
+ThisWillCauseMatlabtoThrowError
 end

@@ -1,6 +1,6 @@
 function [Options] = Setup_Options()
 
-    Options.Threshold = 80;
+    Options.Threshold = 140;
         % This is the number of counts above background which will be used
         % to detect virus particles. You will need to optimize this number 
         % for each set of imaging conditions and/or each data set. An optimal 
@@ -14,13 +14,13 @@ function [Options] = Setup_Options()
         % value much if at all between data sets.
 
 % ---------Inputs specific to each data set---------
-    Options.PHdropFrameNum = 30;
+    Options.PHdropFrameNum = NaN;
         % This is the frame number in which the pH drop occurs to trigger fusion, 
         % defined as the frame number in which the intensity of the pH indicator 
         % drops below one half its value. Will be used to determine the pH 
         % drop to lipid mixing waiting time in the trace analysis program.
         % NOTE: This number will be ignored if you choose to extract inputs from filename.
-    Options.FrameNumToFindParticles = 25;
+    Options.FrameNumToFindParticles = NaN;
         % This is the frame number that will be used as the finding image, 
         % to find viral particles. 
         % NOTE: This number will be ignored if you choose to extract inputs from filename.
@@ -48,7 +48,7 @@ function [Options] = Setup_Options()
         % above the threshold) in order for a particle to be found. 
         % Particles smaller than this size will not be found (i.e. the program 
         % will assume that they are noise).
-    Options.MaxParticleSize = 100; 
+    Options.MaxParticleSize = 150; 
         % This is the maximum particle size (defined as the number of connected pixels 
         % above the threshold) in order for a particle to be considered "good". 
         % Particles larger than this size will be designated as "bad".
@@ -58,7 +58,7 @@ function [Options] = Setup_Options()
         % eccentricity is too high, that may indicate that the particle being 
         % analyzed is actually two diffraction limited particles close together.
 
-    Options.MinROISize = 5; 
+    Options.MinROISize = 4; 
     Options.MaxROISize = NaN;
         % These determine the minimum and maximum size allowed for the region 
         % of interest around each particle. In between those values, the ROI 
@@ -66,12 +66,12 @@ function [Options] = Setup_Options()
         % have larger regions of interest). The ROI is a square, and the 
         % values indicate the number of pixels along one side of the square 
         % (so 5 means a 5x5 pixel ROI). The minimum size must always be 
-        % specified. ?NaN? can be used to indicate no maximum size.
+        % specified. 'NaN' can be used to indicate no maximum size.
 
 % ---------Image Visualization Options---------
     
     Options.MinImageShow = 90;
-    Options.MaxImageShow = 300;
+    Options.MaxImageShow = 800;
         % These determine the minimum and maximum intensity counts that will 
         % be used to set the contrast for the grayscale images that are displayed.
         % The minimum value will be displayed as black and the maximum value 
@@ -93,7 +93,7 @@ function [Options] = Setup_Options()
         
 % ---------Workflow Options---------
     Options.AutoCreateLabels = 'n';
-        % 'y' OR 'n'
+         % 'y' OR 'n'
         % Choose 'y' to automatically use information in the pathname and/or 
         % filename to create labels for the output data file and/or save folder. 
         % If so, you should modify Create_Save_Folder_And_Grab_Data_Labels.m so it 

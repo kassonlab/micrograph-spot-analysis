@@ -10,18 +10,6 @@ CurrentVirusData.Designation = FusionData.Designation;
 CurrentVirusData.TraceGradData = TraceGradData;
 CurrentVirusData.DockingData = DockingData;
 CurrentVirusData.FusionData = FusionData;
-
-% CurrentVirusData.StopFrameNum = DockingData.StopFrameNum;
-% CurrentVirusData.IsMobile = DockingData.IsMobile;
-% CurrentVirusData.pHtoStopNumFrames= DockingData.pHtoStopNumFrames;
-% CurrentVirusData.pHtoStopTime = DockingData.pHtoStopTime;
-   
-% CurrentVirusData.Fuse1FrameNum = NaN;
-% CurrentVirusData.Fuse2FrameNum = NaN;
-% CurrentVirusData.pHtoFuse1Time = NaN;
-% CurrentVirusData.pHtoFuse2Time = NaN;
-% CurrentVirusData.pHtoFuse1NumFrames = NaN;
-% CurrentVirusData.pHtoFuse2NumFrames = NaN;
 CurrentVirusData.FusionData.pHDropFrameNumber = UniversalData.pHDropFrameNumber;
 CurrentVirusData.FusionData.TimeInterval = Options.TimeInterval;
 
@@ -32,26 +20,40 @@ CurrentVirusData.IntensityJumpFuse2 = NaN;
 CurrentVirusData.IntensityBeforeFuse2 = NaN;
 CurrentVirusData.IntensityAfterFuse2 = NaN;
 
+% ----------Legacy data format
+    % CurrentVirusData.StopFrameNum = DockingData.StopFrameNum;
+    % CurrentVirusData.IsMobile = DockingData.IsMobile;
+    % CurrentVirusData.pHtoStopNumFrames= DockingData.pHtoStopNumFrames;
+    % CurrentVirusData.pHtoStopTime = DockingData.pHtoStopTime;
+
+    % CurrentVirusData.Fuse1FrameNum = NaN;
+    % CurrentVirusData.Fuse2FrameNum = NaN;
+    % CurrentVirusData.pHtoFuse1Time = NaN;
+    % CurrentVirusData.pHtoFuse2Time = NaN;
+    % CurrentVirusData.pHtoFuse1NumFrames = NaN;
+    % CurrentVirusData.pHtoFuse2NumFrames = NaN;
+    
 if strcmp(FusionData.Designation,'1 Fuse')
+    
+    StatsOfDesignations.Fuse1 = StatsOfDesignations.Fuse1 + 1;
+    
+    % ----------Legacy data format
     
 %     CurrentVirusData.Fuse1FrameNum = FusionData.FuseFrameNumbers(1);
 %     CurrentVirusData.pHtoFuse1Time = FusionData.pHtoFusionTime(1);
-%     CurrentVirusData.pHtoFuse1NumFrames = FusionData.pHtoFusionNumFrames(1);
-%     
-        StatsOfDesignations.Fuse1 = StatsOfDesignations.Fuse1 + 1;
-
+%     CurrentVirusData.pHtoFuse1NumFrames = FusionData.pHtoFusionNumFrames(1);  
+        
 elseif strcmp(FusionData.Designation,'2 Fuse')
-
-%Save the relevant data for the fusion event
-   
+    
+    StatsOfDesignations.Fuse2 = StatsOfDesignations.Fuse2 + 1;
+    
+        % ----------Legacy data format
 %         CurrentVirusData.Fuse1FrameNum = FusionData.FuseFrameNumbers(1);
 %         CurrentVirusData.Fuse2FrameNum = FusionData.FuseFrameNumbers(2);
 %         CurrentVirusData.pHtoFuse1Time = FusionData.pHtoFusionTime(1);
 %         CurrentVirusData.pHtoFuse2Time = FusionData.pHtoFusionTime(2);
 %         CurrentVirusData.pHtoFuse1NumFrames = FusionData.pHtoFusionNumFrames(1);
 %         CurrentVirusData.pHtoFuse2NumFrames = FusionData.pHtoFusionNumFrames(2);                 
-
-        StatsOfDesignations.Fuse2 = StatsOfDesignations.Fuse2 + 1;
 
 elseif strcmp(FusionData.Designation,'No Fusion')                    
 
@@ -65,17 +67,14 @@ end
     NumNoFuseRecorded = StatsOfDesignations.NoFuse;
     NumFuse2Recorded = StatsOfDesignations.Fuse2;
     NumFuse1Recorded = StatsOfDesignations.Fuse1;
-TotalEventsRecorded = NumFuse1Recorded + NumFuse2Recorded + NumNoFuseRecorded + ...
-    StatsOfDesignations.Other;
+    TotalEventsRecorded = NumFuse1Recorded + NumFuse2Recorded + NumNoFuseRecorded + ...
+        StatsOfDesignations.Other;
 
 if TotalEventsRecorded == 1
     AnalyzedTraceData = CurrentVirusData;
 else
     AnalyzedTraceData(TotalEventsRecorded) = CurrentVirusData;
 end
-
-% OtherDataToSave.Options = Options;
-% OtherDataToSave.UniversalData = UniversalData;
 
 if rem(TotalEventsRecorded,5) == 0 && strcmp(SaveOption,'WritetoDisk')
     Save_Data_At_Each_Step(AnalyzedTraceData,Options,OtherDataToSave);
